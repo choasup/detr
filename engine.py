@@ -88,8 +88,10 @@ def evaluate(model, criterion, postprocessors, data_loader, base_ds, device, out
     for samples, targets in metric_logger.log_every(data_loader, 10, header):
         samples = samples.to(device)
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
-
+ 
         outputs = model(samples)
+        
+        # TODO.how to design loss
         loss_dict = criterion(outputs, targets)
         weight_dict = criterion.weight_dict
 

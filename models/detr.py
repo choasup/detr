@@ -59,13 +59,20 @@ class DETR(nn.Module):
         if isinstance(samples, (list, torch.Tensor)):
             samples = nested_tensor_from_tensor_list(samples)
         features, pos = self.backbone(samples)
-
+ 
         src, mask = features[-1].decompose()
         assert mask is not None
+        # src: torch.Size([2, 2048, 24, 36])
+        # input_proj(src): torch.Size([2, 256, 24, 36]) 
+        # mask: torch.Size([2, 24, 36])
+        # query_embed.weight: torch.Size([100, 256])
+        # pos[0]: torch.Size([2, 256, 24, 36])
+        # hs: torch.Size([6, 2, 100, 256])
         hs = self.transformer(self.input_proj(src), mask, self.query_embed.weight, pos[-1])[0]
 
         outputs_class = self.class_embed(hs)
         outputs_coord = self.bbox_embed(hs).sigmoid()
+        # TODO.why only need -1?
         out = {'pred_logits': outputs_class[-1], 'pred_boxes': outputs_coord[-1]}
         if self.aux_loss:
             out['aux_outputs'] = self._set_aux_loss(outputs_class, outputs_coord)
@@ -308,7 +315,7 @@ def build(args):
     device = torch.device(args.device)
 
     backbone = build_backbone(args)
-
+    
     transformer = build_transformer(args)
 
     model = DETR(
@@ -321,6 +328,7 @@ def build(args):
     if args.masks:
         model = DETRsegm(model, freeze_detr=(args.frozen_weights is not None))
     matcher = build_matcher(args)
+
     weight_dict = {'loss_ce': 1, 'loss_bbox': args.bbox_loss_coef}
     weight_dict['loss_giou'] = args.giou_loss_coef
     if args.masks:

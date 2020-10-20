@@ -275,13 +275,13 @@ def _get_clones(module, N):
 
 def build_transformer(args):
     return Transformer(
-        d_model=args.hidden_dim,
-        dropout=args.dropout,
-        nhead=args.nheads,
-        dim_feedforward=args.dim_feedforward,
-        num_encoder_layers=args.enc_layers,
-        num_decoder_layers=args.dec_layers,
-        normalize_before=args.pre_norm,
+        d_model=args.hidden_dim, #256
+        dropout=args.dropout, #0.1
+        nhead=args.nheads, #8 
+        dim_feedforward=args.dim_feedforward, #2048
+        num_encoder_layers=args.enc_layers, #6
+        num_decoder_layers=args.dec_layers, #6
+        normalize_before=args.pre_norm, #False
         return_intermediate_dec=True,
     )
 
